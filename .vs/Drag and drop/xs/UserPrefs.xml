@@ -1,0 +1,15 @@
+﻿<Properties StartupConfiguration="{09166B22-2859-C47A-B85D-424E8CFB9FE2}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/InventorySlot.cs">
+    <Files>
+      <File FileName="Assets/DraggableItem.cs" Line="14" Column="38" />
+      <File FileName="Assets/InventorySlot.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="d711ecb8-5f4f-47c1-be2f-005ed279f6c5" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>
