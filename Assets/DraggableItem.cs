@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using TMPro;  // 添加这个命名空间
+using TMPro;
 
 public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
@@ -11,13 +11,21 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     // 初始槽位的引用
     public Transform initialSlot;
 
+    // 垂直间距
+    public float verticalSpacing = 50f; // 可以根据需求调整这个值
+
     void Start()
     {
         // 将初始父物体设置为 InventorySlot
         if (initialSlot != null)
         {
             transform.SetParent(initialSlot);
-            transform.localPosition = Vector3.zero; // 重置位置相对于父物体
+            
+            // 设置垂直位置时考虑到每个项目之间的间距
+            RectTransform rectTransform = GetComponent<RectTransform>();
+            int siblingIndex = transform.GetSiblingIndex();
+            float yOffset = siblingIndex * verticalSpacing;
+            rectTransform.anchoredPosition = new Vector2(rectTransform.anchoredPosition.x, -yOffset);
         }
     }
 
@@ -52,7 +60,7 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
             // 检查是否放置在 InventorySlot 上
             InventorySlot slot = dropTarget.GetComponent<InventorySlot>();
-            if (slot != null)
+            if (slot != null && slot.transform.childCount == 0) // 确保槽位为空
             {
                 transform.SetParent(dropTarget.transform);
                 transform.localPosition = Vector3.zero;
@@ -60,7 +68,7 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
             }
             else
             {
-                // 如果不是放在有效的 InventorySlot 上，则返回原始位置
+                // 如果不是放在有效的 InventorySlot 上，或者槽位已满，则返回原始位置
                 transform.SetParent(parentAfterDrag);
                 transform.localPosition = Vector3.zero;
                 Debug.Log("Dropped back to original parent: " + parentAfterDrag.name);
@@ -78,4 +86,5 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         GetComponent<TextMeshProUGUI>().raycastTarget = true;
         Debug.Log("Text Raycast target enabled");
     }
+
 }
