@@ -14,18 +14,28 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     // 垂直间距
     public float verticalSpacing = 50f; // 可以根据需求调整这个值
 
+    // 存放不同文本的数组
+    public string[] texts = { "文本1", "文本2", "文本3", "文本4", "文本5" };  // 根據你的需求設置這些文本
+
     void Start()
     {
         // 将初始父物体设置为 InventorySlot
         if (initialSlot != null)
         {
             transform.SetParent(initialSlot);
-            
+
             // 设置垂直位置时考虑到每个项目之间的间距
             RectTransform rectTransform = GetComponent<RectTransform>();
             int siblingIndex = transform.GetSiblingIndex();
             float yOffset = siblingIndex * verticalSpacing;
             rectTransform.anchoredPosition = new Vector2(rectTransform.anchoredPosition.x, -yOffset);
+
+            // 設置Text (TMP)的文本內容
+            TextMeshProUGUI tmp = GetComponent<TextMeshProUGUI>();
+            if (tmp != null && siblingIndex < texts.Length)
+            {
+                tmp.text = texts[siblingIndex];
+            }
         }
     }
 
@@ -86,5 +96,4 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         GetComponent<TextMeshProUGUI>().raycastTarget = true;
         Debug.Log("Text Raycast target enabled");
     }
-
 }
