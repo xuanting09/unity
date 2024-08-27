@@ -344,6 +344,7 @@
 "Assets/DraggableItem.cs"
 "Assets/InventorySlot.cs"
 "Assets/LoadTextFromJSON.cs"
+"Assets/WeekPlanManager.cs"
 -langversion:9.0
 /deterministic
 /optimize+
