@@ -47,48 +47,59 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         transform.position = Input.mousePosition;
     }
 
-    public void OnEndDrag(PointerEventData eventData)
+public void OnEndDrag(PointerEventData eventData)
+{
+    Debug.Log("End drag");
+
+    GameObject dropTarget = eventData.pointerCurrentRaycast.gameObject;
+
+    if (dropTarget != null)
     {
-        Debug.Log("End drag");
+        Debug.Log("Raycast hit: " + dropTarget.name);
 
-        GameObject dropTarget = eventData.pointerCurrentRaycast.gameObject;
-
-        if (dropTarget != null)
+        InventorySlot slot = dropTarget.GetComponent<InventorySlot>();
+        if (slot != null)
         {
-            Debug.Log("Raycast hit: " + dropTarget.name);
-
-            InventorySlot slot = dropTarget.GetComponent<InventorySlot>();
-            if (slot != null)
+            Debug.Log("InventorySlot found: " + slot.name + ", Child count: " + slot.transform.childCount);
+            if (slot.transform.childCount == 0) // 確保槽位為空
             {
-                Debug.Log("InventorySlot found: " + slot.name + ", Child count: " + slot.transform.childCount);
-                if (slot.transform.childCount == 0) // 確保槽位為空
+                transform.SetParent(dropTarget.transform);
+                transform.localPosition = Vector3.zero;
+                Debug.Log("Dropped into: " + dropTarget.name);
+
+                // 檢查所有槽位是否已填滿
+                if (InventorySlot.CheckAllSlotsFilled())
                 {
-                    transform.SetParent(dropTarget.transform);
-                    transform.localPosition = Vector3.zero;
-                    Debug.Log("Dropped into: " + dropTarget.name);
-                }
-                else
-                {
-                    Debug.Log("Slot already occupied. Returning to original parent.");
-                    transform.SetParent(parentAfterDrag);
-                    transform.localPosition = Vector3.zero;
+                    BingoGame gameManager = FindObjectOfType<BingoGame>();
+                    if (gameManager != null)
+                    {
+                        gameManager.EndGame(); // 如果所有槽位已填滿，結束遊戲
+                    }
                 }
             }
             else
             {
-                Debug.Log("Drop target is not an InventorySlot. Returning to original parent.");
+                Debug.Log("Slot already occupied. Returning to original parent.");
                 transform.SetParent(parentAfterDrag);
                 transform.localPosition = Vector3.zero;
             }
         }
         else
         {
-            Debug.Log("Raycast missed. Returning to original parent.");
+            Debug.Log("Drop target is not an InventorySlot. Returning to original parent.");
             transform.SetParent(parentAfterDrag);
             transform.localPosition = Vector3.zero;
         }
-
-        GetComponent<TextMeshProUGUI>().raycastTarget = true;
-        Debug.Log("Text Raycast target enabled");
     }
+    else
+    {
+        Debug.Log("Raycast missed. Returning to original parent.");
+        transform.SetParent(parentAfterDrag);
+        transform.localPosition = Vector3.zero;
+    }
+
+    GetComponent<TextMeshProUGUI>().raycastTarget = true;
+    Debug.Log("Text Raycast target enabled");
+}
+
 }
