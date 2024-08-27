@@ -28,8 +28,7 @@ public class BingoGame : MonoBehaviour
 
         // 停止所有 DraggableItem 的拖動功能
         DisableDragging();
-
-        // 顯示結束遊戲的屏幕和按鈕
+        Backgroundend.SetActive(true);  // 顯示背景圖片
         weekPlanDoneScreen.SetActive(true);
 
         // 開始協程來隱藏結束屏幕並轉換卡片為按鈕
@@ -53,6 +52,8 @@ public class BingoGame : MonoBehaviour
 
         // 隱藏結束遊戲的屏幕
         weekPlanDoneScreen.SetActive(false);
+        Backgroundend.SetActive(false);
+
 
         // 將格子中的卡片轉換為按鈕
         ConvertCardsToButtons();
@@ -86,6 +87,7 @@ public class BingoGame : MonoBehaviour
         else
         {
             Debug.LogError("按鈕上未找到 TMP_Text 組件");
+            
         }
 
         // 檢查所有按鈕是否都變為“congratulating”
