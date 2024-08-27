@@ -11,31 +11,21 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     // 初始槽位的引用
     public Transform initialSlot;
 
-    // 垂直间距
-    public float verticalSpacing = 50f; // 可以根据需求调整这个值
-
-    // 存放不同文本的数组
-    public string[] texts = { "文本1", "文本2", "文本3", "文本4", "文本5" };  // 根據你的需求設置這些文本
+    // 垂直間距
+    public float verticalSpacing = 50f; // 可以根據需求調整這個值
 
     void Start()
     {
-        // 将初始父物体设置为 InventorySlot
+        // 將初始父物體設置為 initialSlot
         if (initialSlot != null)
         {
             transform.SetParent(initialSlot);
 
-            // 设置垂直位置时考虑到每个项目之间的间距
+            // 設置垂直位置時考慮到每個項目之間的間距
             RectTransform rectTransform = GetComponent<RectTransform>();
             int siblingIndex = transform.GetSiblingIndex();
             float yOffset = siblingIndex * verticalSpacing;
             rectTransform.anchoredPosition = new Vector2(rectTransform.anchoredPosition.x, -yOffset);
-
-            // 設置Text (TMP)的文本內容
-            TextMeshProUGUI tmp = GetComponent<TextMeshProUGUI>();
-            if (tmp != null && siblingIndex < texts.Length)
-            {
-                tmp.text = texts[siblingIndex];
-            }
         }
     }
 
@@ -61,38 +51,43 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     {
         Debug.Log("End drag");
 
-        // 获取鼠标位置下的 UI 对象
         GameObject dropTarget = eventData.pointerCurrentRaycast.gameObject;
 
         if (dropTarget != null)
         {
             Debug.Log("Raycast hit: " + dropTarget.name);
 
-            // 检查是否放置在 InventorySlot 上
             InventorySlot slot = dropTarget.GetComponent<InventorySlot>();
-            if (slot != null && slot.transform.childCount == 0) // 确保槽位为空
+            if (slot != null)
             {
-                transform.SetParent(dropTarget.transform);
-                transform.localPosition = Vector3.zero;
-                Debug.Log("Dropped into: " + dropTarget.name);
+                Debug.Log("InventorySlot found: " + slot.name + ", Child count: " + slot.transform.childCount);
+                if (slot.transform.childCount == 0) // 確保槽位為空
+                {
+                    transform.SetParent(dropTarget.transform);
+                    transform.localPosition = Vector3.zero;
+                    Debug.Log("Dropped into: " + dropTarget.name);
+                }
+                else
+                {
+                    Debug.Log("Slot already occupied. Returning to original parent.");
+                    transform.SetParent(parentAfterDrag);
+                    transform.localPosition = Vector3.zero;
+                }
             }
             else
             {
-                // 如果不是放在有效的 InventorySlot 上，或者槽位已满，则返回原始位置
+                Debug.Log("Drop target is not an InventorySlot. Returning to original parent.");
                 transform.SetParent(parentAfterDrag);
                 transform.localPosition = Vector3.zero;
-                Debug.Log("Dropped back to original parent: " + parentAfterDrag.name);
             }
         }
         else
         {
-            // 如果 Raycast 没有命中任何对象，则返回原始位置
+            Debug.Log("Raycast missed. Returning to original parent.");
             transform.SetParent(parentAfterDrag);
             transform.localPosition = Vector3.zero;
-            Debug.Log("Raycast missed. Dropped back to original parent: " + parentAfterDrag.name);
         }
 
-        // 恢复 Text (TMP) 的 Raycast Target
         GetComponent<TextMeshProUGUI>().raycastTarget = true;
         Debug.Log("Text Raycast target enabled");
     }
