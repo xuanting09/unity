@@ -30,8 +30,7 @@ public class InventorySlot : MonoBehaviour, IDropHandler
                     // 在放置此卡片後檢查是否所有槽位都已填滿
                     if (CheckAllSlotsFilled())
                     {
-                        Debug.Log("所有槽位已填滿，執行其他操作...");
-
+                
                         // 執行其他操作，例如顯示通知或禁用卡片移動
                         OnAllSlotsFilled();
                     }

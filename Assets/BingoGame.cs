@@ -16,34 +16,51 @@ public class BingoGame : MonoBehaviour
 
     private Dictionary<Button, string> originalButtonTexts = new Dictionary<Button, string>(); // 存儲每個按鈕的原始文本
 
+
     void Start()
     {
-        // 確保遊戲開始時隱藏結束屏幕和按鈕
+        // 确保游戏开始时隐藏结束屏幕和按钮
         weekPlanDoneScreen.SetActive(false);
         resetButton.gameObject.SetActive(false);
         replayButton.gameObject.SetActive(false);
         GameFinish.SetActive(false);
-        Backgroundend.SetActive(false);  // 隱藏背景圖片
+        Backgroundend.SetActive(false);  // 隐藏背景图片
 
-        // 添加按鈕事件
+        // 添加按钮事件
         resetButton.onClick.AddListener(ResetGame);
         replayButton.onClick.AddListener(ReplayGame);
     }
 
     public void EndGame()
     {
-        Debug.Log("EndGame 方法被呼叫");
-
-        // 停止所有 DraggableItem 的拖動功能
-        DisableDragging();
-        Backgroundend.SetActive(true);
-
-        // 顯示結束遊戲的屏幕和按鈕
-        weekPlanDoneScreen.SetActive(true);
-
-        // 開始協程來隱藏結束屏幕並轉換卡片為按鈕
-        StartCoroutine(HideWeekPlanDoneScreenAndConvertCards());
+        Debug.Log("EndGame 方法被调用");
+        StartCoroutine(EndGameSequence());
     }
+
+    private IEnumerator EndGameSequence()
+    {
+        // 激活背景和结束屏幕
+        Backgroundend.SetActive(true);
+        weekPlanDoneScreen.SetActive(true);
+        Debug.Log("Backgroundend and weekPlanDoneScreen should be active now");
+
+        Canvas.ForceUpdateCanvases();  // 强制更新 Canvas
+
+        // 等待一段时间后再隐藏它们
+        yield return new WaitForSeconds(2);
+        weekPlanDoneScreen.SetActive(false);
+        Backgroundend.SetActive(false);
+
+        // 转换卡片为按钮
+        ConvertCardsToButtons();
+    }
+
+    private IEnumerator DelayedDebug()
+{
+    yield return new WaitForSeconds(1);  // 延遲1秒
+    Debug.Log("After 1 second: Backgroundend active: " + Backgroundend.activeSelf);
+    Debug.Log("After 1 second: weekPlanDoneScreen active: " + weekPlanDoneScreen.activeSelf);
+}
 
     private void DisableDragging()
     {
@@ -53,19 +70,6 @@ public class BingoGame : MonoBehaviour
         {
             item.enabled = false; // 禁用 DraggableItem 腳本，防止繼續拖動卡片
         }
-    }
-
-    private IEnumerator HideWeekPlanDoneScreenAndConvertCards()
-    {
-        // 等待 5 秒鐘
-        yield return new WaitForSeconds(2);
-
-        // 隱藏結束遊戲的屏幕
-        weekPlanDoneScreen.SetActive(false);
-        Backgroundend.SetActive(false);
-
-        // 將格子中的卡片轉換為按鈕
-        ConvertCardsToButtons();
     }
 
     private void ConvertCardsToButtons()
@@ -143,42 +147,55 @@ public class BingoGame : MonoBehaviour
     }
 
     private void ResetGame()
-{
-    // 將所有卡片移回初始位置並恢復 DraggableItem 腳本
-    foreach (Transform slot in gridParent)
     {
-        if (slot.childCount > 0)
+        // 將所有卡片移回初始位置並恢復 DraggableItem 腳本
+        foreach (Transform slot in gridParent)
         {
-            GameObject card = slot.GetChild(0).gameObject;
-            DraggableItem draggableItem = card.GetComponent<DraggableItem>();
-            if (draggableItem != null && draggableItem.initialSlot != null)
+            if (slot.childCount > 0)
             {
-                // 將卡片移回初始槽位
-                card.transform.SetParent(draggableItem.initialSlot);
-                card.transform.localPosition = Vector3.zero;
-
-                // 恢復 DraggableItem 腳本
-                draggableItem.enabled = true;
-
-                // 確保 TextMeshPro 的 Raycast Target 是啟用的
-                TextMeshProUGUI tmpText = card.GetComponent<TextMeshProUGUI>();
-                if (tmpText != null)
+                GameObject card = slot.GetChild(0).gameObject;
+                DraggableItem draggableItem = card.GetComponent<DraggableItem>();
+                if (draggableItem != null && draggableItem.initialSlot != null)
                 {
-                    tmpText.raycastTarget = true;
+                    // 將卡片移回初始槽位
+                    card.transform.SetParent(draggableItem.initialSlot);
+                    card.transform.localPosition = Vector3.zero;
+
+                    // 恢復 DraggableItem 腳本
+                    draggableItem.enabled = true;
+
+                    // 確保 TextMeshPro 的 Raycast Target 是啟用的
+                    TextMeshProUGUI tmpText = card.GetComponent<TextMeshProUGUI>();
+                    if (tmpText != null)
+                    {
+                        tmpText.raycastTarget = true;
+                    }
+                }
+
+                // 重置按鈕狀態
+                Button button = card.GetComponent<Button>();
+                if (button != null)
+                {
+                    TMP_Text buttonText = card.GetComponentInChildren<TMP_Text>();
+                    if (buttonText != null && originalButtonTexts.ContainsKey(button))
+                    {
+                        buttonText.text = originalButtonTexts[button]; // 恢復原始文本
+                    }
+
+                    // 移除按鈕組件以恢復卡片為原始狀態
+                    Destroy(button);
                 }
             }
-            // 移除按鈕組件以恢復卡片為原始狀態
-            Destroy(card.GetComponent<Button>());
         }
+
+        // 隱藏遊戲結束屏幕和按鈕
+        weekPlanDoneScreen.SetActive(false);
+        Backgroundend.SetActive(false);
+        GameFinish.SetActive(false);
+        resetButton.gameObject.SetActive(false);
+        replayButton.gameObject.SetActive(false);
     }
 
-    // 重置遊戲狀態
-    weekPlanDoneScreen.SetActive(false);
-    resetButton.gameObject.SetActive(false);
-    replayButton.gameObject.SetActive(false);
-    GameFinish.SetActive(false);
-    Backgroundend.SetActive(false);
-}
     private void ReplayGame()
     {
         // 恢復按鈕的原始文本

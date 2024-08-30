@@ -4,8 +4,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
 
+
 public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+
     [HideInInspector] public Transform parentAfterDrag;
 
     // 初始槽位的引用
